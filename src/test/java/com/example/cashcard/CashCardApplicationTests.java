@@ -59,7 +59,7 @@ class CashCardApplicationTests {
 	@Test
 	@DirtiesContext
 	void shouldCreateANewCashCard(){
-		CashCard newCashCard = new CashCard(null, 250.0);
+		CashCard newCashCard = new CashCard(null, 250.0, "sarah1");
 		ResponseEntity<Void> response = restTemplate.postForEntity("/cashcards", newCashCard, Void.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
