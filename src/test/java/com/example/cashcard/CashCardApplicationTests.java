@@ -47,24 +47,22 @@ class CashCardApplicationTests {
 	}
 
 	@Test
-	void shouldNotReturnACashCardWithAnUnknownId(){
+	void shouldNotReturnACashCardWithAnUnknownId() {
 		ResponseEntity<String> response = restTemplate.getForEntity("/cashcards/1000", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-
 		assertThat(response.getBody()).isBlank();
-
 	}
 
 	@Test
 	@DirtiesContext
-	void shouldCreateANewCashCard(){
-		CashCard newCashCard = new CashCard(null, 250.0, "sarah1");
-		ResponseEntity<Void> response = restTemplate.postForEntity("/cashcards", newCashCard, Void.class);
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+	void shouldCreateANewCashCard() {
+		CashCard newCashCard = new CashCard(null, 250.00, "sarah1");
+		ResponseEntity<Void> createResponse = restTemplate.postForEntity("/cashcards", newCashCard, Void.class);
+		assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-		URI location = response.getHeaders().getLocation();
-		ResponseEntity<String> getResponse = restTemplate.getForEntity(location, String.class);
+		URI locationOfNewCashCard = createResponse.getHeaders().getLocation();
+		ResponseEntity<String> getResponse = restTemplate.getForEntity(locationOfNewCashCard, String.class);
 		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
@@ -72,12 +70,11 @@ class CashCardApplicationTests {
 		Double amount = documentContext.read("$.amount");
 
 		assertThat(id).isNotNull();
-		assertThat(amount).isEqualTo(250.0);
+		assertThat(amount).isEqualTo(250.00);
 	}
 
-
 	@Test
-	void shouldReturnAllCashCardsWhenListIsRequested(){
+	void shouldReturnAllCashCardsWhenListIsRequested() {
 		ResponseEntity<String> response = restTemplate.getForEntity("/cashcards", String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -89,9 +86,8 @@ class CashCardApplicationTests {
 		assertThat(ids).containsExactlyInAnyOrder(99, 100, 101);
 
 		JSONArray amounts = documentContext.read("$..amount");
-		assertThat(amounts).containsExactlyInAnyOrder(123.45, 100.00, 150.00);
+		assertThat(amounts).containsExactlyInAnyOrder(123.45, 1.00, 150.00);
 	}
-
 
 	@Test
 	void shouldReturnAPageOfCashCards() {
@@ -126,6 +122,6 @@ class CashCardApplicationTests {
 		assertThat(page.size()).isEqualTo(3);
 
 		JSONArray amounts = documentContext.read("$..amount");
-		assertThat(amounts).containsExactly(100.00, 123.45, 150.00);
+		assertThat(amounts).containsExactly(1.00, 123.45, 150.00);
 	}
 }
